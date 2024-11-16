@@ -1,116 +1,113 @@
-LMLibraryメモ
+LMLibrary memo
 ===
 
-LMLibraryでロードされるテクスチャパックやサウンドパックの読込仕様についてのメモ    
+Notes on the loading specifications of texture packs and sound packs loaded with LMLibrary    
 
 ---
 
 ## firis.lmmmパッケージ
-外部から読込マルチモデルクラスの基底クラスをまとめたパッケージ  
-マルチモデル側からMinecraftやMODの影響を排しバージョン間の互換を維持することを目指して実装している  
-元々の処理がMinecraftの処理とマルチモデルの処理が混在していたためパッケージを整理し処理をリメイクしている  
+ A package that summarizes the base classes of externally read multi-model classes.
+Implemented with the aim of eliminating the influence of Minecraft and MOD from the multi-model side and maintaining compatibility between versions.
+The original processing was a mixture of Minecraft processing and multi-model processing, so the packages were organized and the processing was remade. 
  - **firis.lmmm.api.caps.IModelCaps**
-   - MOD側からマルチモデル側へパラメータを受け渡すためのクラス
-   - Entityの状態はすべてModelCapsを経由してアクセスしEntity -> マルチモデル側へ一方通行で値受け渡しを行う
+   - Class for passing parameters from the MOD side to the multi-model side
+   - All Entity states are accessed via ModelCaps and values ​​are passed one-way from Entity -> Multi-model side.
  - **firis.lmmm.api.model**
-   - マルチモデルの基底クラスをまとめたパッケージ
-   - 標準型のメイドモデルの場合は「ModelLittleMaidBase」を継承しマルチモデルを実装する
-   - 標準型でないメイドモデル（大型や人型以外）の場合は「ModelMultiBase」を継承しマルチモデルを実装する
-   - 「ModelMultiBase」を継承しクラス名が「ModelLittleMaid_」「ModelMulti_」で始まる場合にマルチモデルとして認識される
+   - A package that summarizes the base classes of multi-models.
+   - For standard maid model, inherit "ModelLittleMaidBase" and implement multi-model
+   - For non-standard maid models (other than large or humanoid), inherit "ModelMultiBase" and implement multi-model
+   - If the class name inherits "ModelMultiBase" and starts with "ModelLittleMaid_" or "ModelMulti_", it will be recognized as a multi-model.
  - **firis.lmmm.api.model.motion.ILMMotion**
-   - 標準型メイドモデルのモーションを実装するためのインターフェース
-   - 「ModelLittleMaidBase」を継承したマルチモデルのみモーション処理が反映される想定
+   - Interface for implementing standard maid model motion
+   - It is assumed that motion processing will only be reflected on multi-models that inherit "ModelLittleMaidBase"
  - **firis.lmmm.api.model.parts**
-   - マルチモデル用のモデルパーツをまとめたパッケージ
-   - MinecraftのModelBox互換でクラスが実装されている
+   - A package containing model parts for multi-models
+   - Classes are implemented with Minecraft ModelBox compatibility.
  - **firis.lmmm.api.renderer**
-   - マルチモデル用のレンダラークラスをまとめたパッケージ
-   - MinecraftのModelRenderer互換でクラスが実装されている
+   - A package that summarizes renderer classes for multi-models.
+   - The class is implemented with Minecraft ModelRenderer compatibility.
  - **firis.lmmm.builtin.model**
-   - 標準的なメイドモデルの実装クラス
-   - 標準搭載されているdefault/SR2/Augモデルが実装されている
+   - Standard maid model implementation class
+   - The standard default/SR2/Aug model is implemented.
+
    
 #### 課題
-モーション系の処理が現状では体の動きしか制御できない  
-目パチやチークは追加版マルチモデルに独自実装されているタイプがほとんどのため標準拡張だけでは対応ができない
-  - 案1
-    - モーション系に特化した「ModelLittleMaidBase」を拡張したベースモデルを作成する
-    - 独自実装してるタイプは現状通り体の動きのみ適応するようにする
-  - 案2
-    - 「ModelLittleMaidBase」を拡張し目パチやチークを追加する
-    - 独自実装しているものは複数パターン（eyeL/EyeL等）をリフレクションで動的に拾ってうまくいけば内部変数にもたせる
-    - 全部の網羅は無理だがよく使うモデルのパターンをもたせる
-    - **未検証のため実際にやれるかは要検証**
+Currently, motion processing can only control body movements.
+Most of the eye plashes and cheeks are uniquely implemented in the additional multi-models, so they cannot be handled with standard extensions alone.
+  - Plan 1
+    - Create a base model that is an extension of "ModelLittleMaidBase" specialized for motion systems.
+    - For the uniquely implemented type, only the body movement will be adapted as is.
+  - Plan 2
+    - Expand "ModelLittleMaidBase" and add eye patter and cheeks
+    - If you are implementing your own, you can dynamically pick up multiple patterns (eyeL/EyeL, etc.) using reflection and if things go well, add them to internal variables.
+    - Although it is impossible to cover everything, provide patterns of frequently used models
+    - **Since it has not been tested, it is necessary to verify whether it can actually be done**
 
-独自モーションを追加するような仕組みが欲しいが現状だと難しい  
-追加するにしてもMODとしてなのかスクリプト的なものなのかなど検討が必要なため保留  
+I would like a mechanism to add unique motions, but it is currently difficult.
+Even if I add it, I have to consider whether it will be a MOD or a script, so I'll put it on hold.
 
 ---
 
-
-
 ## firis.lmlibパッケージ
-マルチモデル系をいろいろと使いまわすためにベースとなる処理を実装したパッケージ  
-Minecraftとマルチモデルを橋渡しするためのRendererやModelBaseやメイドモデルを利用する際に必要なクラスを実装している  
+A package that implements the basic processing to use multi-model systems in various ways.
+Implements the classes required when using Renderer, ModelBase, and maid models to bridge Minecraft and multi-models.
  - **firis.lmlib.api**
-   - MOD側から利用するための各実装クラスを定義している
+   - Defines each implementation class for use from the MOD side
    - **firis.lmlib.api.LMLibraryAPI**
-     - マルチモデル定義クラス・サウンドパックの取得等MODから使用するためのAPIを定義している
+     - Defines API for use from MODs such as multi-model definition class and sound pack acquisition.
    - **firis.lmlib.api.constant**
-     - 色情報やサウンド情報などをenum定数で定義している
+     - Color information, sound information, etc. are defined using enum constants.
    - **firis.lmlib.api.resource**
-     - マルチモデル・サウンドパック・マルチモデル構造クラスの情報を管理するためのオブジェクトクラス
-     - 読み込んだ情報をMultiModelPackとTexturePackに変換しこの二つの情報からLMTextureBoxを生成する
-     - LMTextureBoxがテクスチャパック単位の情報をすべて持っているためMOD側から扱う場合はこの定義をメインに使用する   
-   - **その他の実装クラスについてはクラスファイル本体にコメント記載**
+     - Object class for managing information on multi-models, sound packs, and multi-model structure classes.
+     - Convert the read information into MultiModelPack and TexturePack and generate LMTextureBox from these two pieces of information.
+     - Since LMTextureBox has all the information for each texture pack, this definition is mainly used when handling it from the MOD side.
+   - **For other implementation classes, write comments in the class file body**
   
-firis.lmlib.api以外の部分についてはテクスチャパックやサウンドパックのローダー定義や汎用マルチモデル選択画面等を実装している  
+For parts other than firis.lmlib.api, loader definitions for texture packs and sound packs, general-purpose multi-model selection screen, etc. are implemented.  
    
 ---
   
 ### Loader
-LMLibraryのメインの処理  
-テクスチャパックとサウンドパックを読み込み内部クラスへ登録する  
-カスタムClassLoaderで読込を行いfindClassのタイミングでASMによるバイトコード変換を実行している  
-読込フォーマットの詳細については別記  
-   
+Main processing of LMLibrary
+Load the texture pack and sound pack and register them to the internal class
+Loading is performed using a custom ClassLoader and bytecode conversion is performed using ASM at the timing of findClass.
+For details on the reading format, see separate page.
+  
 ---
   
-### LMLibraryを前提MODとして利用する
-LMLibraryを用いてリトルメイドモデルを描画するのは下記の構造を想定している
-#### MinecraftMODで利用するための各クラス
+### LMLibrary Use as a prerequisite MOD
+LMLibrary The following structure is assumed when drawing a little maid model using
+#### MinecraftMOD Each class for use with
   - **LMModelLittleMaid**
-    - 「ModelMultiBase」をModelBaseとして扱うためのラッパークラス
-    - 基本的な使い方であればRenderで扱っているだけなので意識する必要はない
+    - Wrapper class for handling "ModelMultiBase" as ModelBase
+    - For basic usage, there is no need to be aware of it as it is just handled by Render.
   - **LMRenderMultiModel**
-    - Rendererとして利用するためのクラス
-    - LMModelLittleMaidを描画するためにはIModelCompound/IModelCapsインターフェースを実装したクラスが必要
+    - Class for use as a Renderer
+    - To draw LMModelLittleMaid, a class that implements the IModelCompound/IModelCaps interface is required.
   - **IModelCompound**
-    - マルチモデルのテクスチャ名・カラー番号・契約状態を管理するためのインターフェース
-    - LMRenderMultiModel.getModelConfigCompoundFromEntityから要求されるためEntityから受け取る/固定クラスを実装するなど描画のために用意する必要がある
-    - Entityで利用することを想定したModelCompoundEntityBaseを実装しているので基本的にはこれを利用し必要に応じて拡張する
+    - Interface for managing multi-model texture names, color numbers, and contract status
+    - Since it is requested by LMRenderMultiModel.getModelConfigCompoundFromEntity, it is necessary to prepare for drawing by receiving from Entity/implementing a fixed class.
+    - Since we have implemented ModelCompoundEntityBase that is assumed to be used in Entity, basically use this and extend it as necessary.
   - **IModelCaps**
-    - Entityの状態をマルチモデルへ引き渡すためのインターフェース
-    - マルチモデル側ではMinecraftのクラスへのアクセスは行わずすべてIModelCapsを経由してアクセスする
-    - IModelCapsはIModelCompoundを経由して取得される
-    - Entityで利用することを想定したModelCapsEntityBaseを実装しているので基本的にはこれを利用し必要に応じて拡張する
-
+    - Interface for passing Entity state to multi-model.
+    - On the multi-model side, there is no access to Minecraft classes, all access is done via IModelCaps.
+    - IModelCaps are obtained via IModelCompound.
+    - Since ModelCapsEntityBase is implemented which is assumed to be used in Entity, basically use this and extend it as necessary.
 ---
 
-#### その他描画について
-リトルメイドモデルの防具や手持ちアイテムはLayerとして定義している
+#### About other drawings
+The little maid model's armor and handheld items are defined as layers.
   - **LMLayerArmorBase**
-    - 防具モデルを描画するために必要な処理を実装したクラス
-    - 基本構造はLMRenderMultiModelと同じのためIModelCompound/IModelCapsインターフェースが必要
+    - A class that implements the processing necessary to draw an armor model.
+    - The basic structure is the same as LMRenderMultiModel, so IModelCompound/IModelCaps interface is required.
   - **LMLayerHeldItemBase**
-    - 手持ちのアイテムを描画するために必要な処理を実装したクラス
-    - 利用する場合はEntityから描画アイテムを取得する方法を実装する必要がある
-   
+    - A class that implements the processing necessary to draw the items you have.
+    - If you want to use it, you need to implement a method to get drawing items from Entity.
 ---
   
-#### テクスチャ選択画面の利用について
-IGuiTextureSelectを実装したクラスをLMLibraryAPI.openGuiTextureSelectに渡すことで利用可能  
-基本的にはEntityへ継承することを想定しているがそれ以外の場合でも利用可能  
-クライアント側のみの実装であるため変更後の同期処理については別途実装する必要がある  
+#### About using the texture selection screen
+Can be used by passing a class that implements IGuiTextureSelect to LMLibraryAPI.openGuiTextureSelect
+Basically it is assumed to be inherited to Entity, but it can be used in other cases as well.
+Since it is implemented only on the client side, synchronization processing after changes must be implemented separately.  
 
 
